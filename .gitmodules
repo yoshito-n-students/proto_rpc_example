@@ -1,0 +1,3 @@
+[submodule "proto_rpc"]
+	path = proto_rpc
+	url = git@github.com:yoshito-n-students/proto_rpc.git
