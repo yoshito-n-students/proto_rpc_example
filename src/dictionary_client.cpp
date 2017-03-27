@@ -1,17 +1,15 @@
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/address.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/value_semantic.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <proto_rpc/channel.hpp>
 #include <proto_rpc/controller.hpp>
@@ -52,37 +50,54 @@ int main(int argc, char *argv[]) {
   }
 
   // construct a RPC client
-  const boost::scoped_ptr< pr::Channel > channel(new pr::Channel(address, port));
-  const boost::scoped_ptr< dictionary::Service > client(
-      new dictionary::Service::Stub(channel.get()));
+  pr::Channel channel(address, port);
+  dictionary::Service::Stub client(&channel);
 
-  // call Get(). this shall return an error if Set() never called
-  {
-    pr::Controller controller;
-    dictionary::Key request;
-    dictionary::Value response;
-    request.set_key("hoge");
-    client->Get(&controller, &request, &response, NULL);
-    if (controller.Failed()) {
-      std::cout << "Get: NG (" << controller.ErrorText() << ")" << std::endl;
-    } else {
-      std::cout << "Get: OK (" << (response.has_value() ? response.value() : 0.) << ")"
-                << std::endl;
-    }
-  }
+  while (true) {
+    // get a command
+    std::cout << "Enter \"key value\" to set, or \"key\" to get: " << std::flush;
+    std::string line;
+    std::getline(std::cin, line);
 
-  // call Set()
-  {
-    pr::Controller controller;
-    dictionary::KeyValue request;
-    dictionary::Empty response;
-    request.set_key("hoge");
-    request.set_value(100.);
-    client->Set(&controller, &request, &response, NULL);
-    if (controller.Failed()) {
-      std::cout << "Set: NG (" << controller.ErrorText() << ")" << std::endl;
+    // parse the command to extract the key and value
+    std::istringstream iss(line);
+    std::string key;
+    double value;
+    iss >> key >> value;
+
+    // run a RPC
+    if (key.empty()) {
+      // the key is invalid
+      std::cerr << "Invalid key. Try again." << std::endl;
+    } else if (!iss.fail()) {
+      // both the key and value are valid. run Set().
+      pr::Controller controller;
+      dictionary::KeyValue request;
+      dictionary::Empty response;
+      request.set_key(key);
+      request.set_value(value);
+      client.Set(&controller, &request, &response, NULL);
+      if (controller.Failed()) {
+        std::cout << "Set: NG (" << controller.ErrorText() << ")" << std::endl;
+      } else {
+        std::cout << "Set: OK" << std::endl;
+      }
     } else {
-      std::cout << "Set: OK" << std::endl;
+      // only the key is valid. run Get().
+      pr::Controller controller;
+      dictionary::Key request;
+      dictionary::Value response;
+      request.set_key(key);
+      client.Get(&controller, &request, &response, NULL);
+      if (controller.Failed()) {
+        std::cout << "Get: NG (" << controller.ErrorText() << ")" << std::endl;
+      } else {
+        if (response.has_value()) {
+          std::cout << "Get: OK (" << response.value() << ")" << std::endl;
+        } else {
+          std::cout << "Get: OK (<none>)" << std::endl;
+        }
+      }
     }
   }
 
