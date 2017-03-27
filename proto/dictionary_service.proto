@@ -1,0 +1,24 @@
+package dictionary;
+
+option cc_generic_services = true;
+
+message Key{
+    required string key = 1;
+}
+
+message Value{
+    optional double value = 1;
+}
+
+message KeyValue{
+    required string key = 1;
+    required double value = 2;
+}
+
+message Empty{
+}
+
+service Service{
+    rpc Get (Key) returns (Value);
+    rpc Set (KeyValue) returns (Empty);
+}
