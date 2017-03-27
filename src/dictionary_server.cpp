@@ -24,7 +24,7 @@ public:
   void Set(gp::RpcController *controller, const dictionary::KeyValue *request,
            dictionary::Empty *response, gp::Closure *done) {
     std::cout << "Setting " << request->value() << " for " << request->key() << " ..." << std::endl;
-    data_.insert(std::make_pair(request->key(), request->value()));
+    data_[request->key()] = request->value();
     done->Run();
   }
 
