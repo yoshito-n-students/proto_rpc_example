@@ -55,9 +55,13 @@ int main(int argc, char *argv[]) {
 
   while (true) {
     // get a command
-    std::cout << "Enter \"key value\" to set, or \"key\" to get: " << std::flush;
+    std::cout << "Enter \"key value\" to set, \"key\" to get, or nothing to quit: " << std::flush;
     std::string line;
     std::getline(std::cin, line);
+    if (line.empty()) {
+      std::cout << "Noting entered. Quit." << std::endl;
+      return 0;
+    }
 
     // parse the command to extract the key and value
     std::istringstream iss(line);
@@ -99,6 +103,8 @@ int main(int argc, char *argv[]) {
         }
       }
     }
+
+    // go next
   }
 
   return 0;
