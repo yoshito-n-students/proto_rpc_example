@@ -48,11 +48,11 @@ add_executable(
 # Compile options
 target_compile_options(
     dictionary_server PRIVATE
-    "/D_WIN32_WINNT=0x0501"
+    "/D_WIN32_WINNT=0x0600" # This tells the target version of Windows. 0x0600 means Vista or later.
 )
 target_compile_options(
     dictionary_client PRIVATE
-    "/D_WIN32_WINNT=0x0501"
+    "/D_WIN32_WINNT=0x0600"
 )
 
 # Library dependences
