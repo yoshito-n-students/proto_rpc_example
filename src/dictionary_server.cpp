@@ -21,6 +21,8 @@ class Service : public dictionary::Service {
 public:
   Service() {}
 
+  virtual ~Service(){}
+
   void Set(gp::RpcController *controller, const dictionary::KeyValue *request,
            dictionary::Empty *response, gp::Closure *done) {
     std::cout << "Setting " << request->value() << " for " << request->key() << " ..." << std::endl;
@@ -70,7 +72,6 @@ int main(int argc, char *argv[]) {
 
   ba::io_service queue;
   pr::Server server(queue, port, boost::make_shared< Service >());
-  server.start();
 
   queue.run();
 
