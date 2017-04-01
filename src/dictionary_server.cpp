@@ -1,4 +1,6 @@
+#include <iostream>
 #include <map>
+#include <stdexcept>
 #include <string>
 
 #include <boost/asio/io_service.hpp>
@@ -21,7 +23,7 @@ class Service : public dictionary::Service {
 public:
   Service() {}
 
-  virtual ~Service(){}
+  virtual ~Service() {}
 
   void Set(gp::RpcController *controller, const dictionary::KeyValue *request,
            dictionary::Empty *response, gp::Closure *done) {
